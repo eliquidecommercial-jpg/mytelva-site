@@ -1,0 +1,35 @@
+# MyTelva — toutes les adresses (/inscription, /espace…) servent l'application
+Options -MultiViews
+RewriteEngine On
+RewriteBase /
+# Fichiers cachés interdits (.git, .env…) et dossiers temporaires de publication
+RewriteRule (^|/)\.(?!well-known) - [F,L]
+RewriteRule ^_(rel|a|v)-[^/]+/ - [F,L]
+# HTTPS obligatoire
+RewriteCond %{HTTPS} !=on
+RewriteCond %{HTTP:X-Forwarded-Proto} !https
+RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+# Quand mytelva.com sera branché : décommenter pour une seule adresse officielle (www.mytelva.com)
+# RewriteCond %{HTTP_HOST} ^mytelva\.com$ [NC,OR]
+# RewriteCond %{HTTP_HOST} \.hostingersite\.com$ [NC]
+# RewriteRule ^(.*)$ https://www.mytelva.com/$1 [R=301,L]
+RewriteRule ^index\.html$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.html [L]
+
+<IfModule mod_headers.c>
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "DENY"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), geolocation=(), payment=()"
+  Header always set Cross-Origin-Opener-Policy "same-origin-allow-popups"
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://tmrhfbvudxfydyvugrii.supabase.co wss://tmrhfbvudxfydyvugrii.supabase.co; worker-src 'self'; manifest-src 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests"
+  <FilesMatch "^(index\.html|sw\.js|manifest\.webmanifest)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+  <FilesMatch "\.(js|css|png|svg|woff2)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+</IfModule>
